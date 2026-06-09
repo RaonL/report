@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engineer Weekly Report</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="workspace">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Static weekly report generator</p>
+          <h1>Engineer Weekly Report</h1>
+        </div>
+        <button class="ghost-button" id="resetButton" type="button">초기화</button>
+      </header>
+
+      <section class="form-grid" aria-label="주간업무보고 입력">
+        <label class="field">
+          <span>이름 / 팀명</span>
+          <input id="ownerInput" type="text" placeholder="예: 보안기술팀 홍길동">
+        </label>
+
+        <label class="field">
+          <span>보고 주차</span>
+          <input id="weekInput" type="text" placeholder="예: 2026년 6월 2주차">
+        </label>
+
+        <label class="field field-wide">
+          <span>금주 업무 키워드</span>
+          <textarea id="currentInput" rows="5" placeholder="예: F5 WAF 테스트, NAC 정책 점검, EDR 이벤트 분석"></textarea>
+        </label>
+
+        <label class="field field-wide">
+          <span>차주 계획 키워드</span>
+          <textarea id="nextInput" rows="4" placeholder="예: WAF 자동화 보완, NAC 예외 정책 정리, EDR 탐지 룰 검토"></textarea>
+        </label>
+
+        <fieldset class="choice-panel">
+          <legend>업무 유형</legend>
+          <div class="chip-grid" id="categoryGroup"></div>
+        </fieldset>
+
+        <fieldset class="choice-panel">
+          <legend>톤</legend>
+          <div class="segmented" id="toneGroup">
+            <button type="button" data-tone="simple">간단</button>
+            <button type="button" data-tone="report" class="active">보고용</button>
+            <button type="button" data-tone="technical">기술중심</button>
+          </div>
+        </fieldset>
+
+        <div class="actions field-wide">
+          <button class="primary-button" id="generateButton" type="button">생성하기</button>
+          <button class="secondary-button" id="copyButton" type="button">복사하기</button>
+          <span id="statusText" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+    </section>
+
+    <section class="result-panel" aria-label="생성 결과">
+      <div class="result-header">
+        <h2>결과 출력</h2>
+        <span id="lineCount">0 lines</span>
+      </div>
+      <pre id="resultOutput">금주 업무와 차주 계획 키워드를 입력한 뒤 생성하기를 눌러주세요.</pre>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
