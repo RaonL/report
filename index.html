@@ -3,72 +3,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Engineer Weekly Report</title>
+  <title>Domain Locker</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="app-shell">
-    <section class="workspace">
-      <header class="app-header">
-        <div>
-          <p class="eyebrow">Static weekly report generator</p>
-          <h1>Engineer Weekly Report</h1>
-        </div>
-        <button class="ghost-button" id="resetButton" type="button">초기화</button>
-      </header>
+  <main class="shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Render Free Static Site</p>
+        <h1>Domain Locker</h1>
+        <p class="hero-text">도메인, SSL 인증서, 등록기관, 담당자 정보를 한 화면에서 관리하는 가벼운 보안 운영 대시보드입니다.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="ghost-button" id="loadSampleButton" type="button">샘플 불러오기</button>
+        <button class="ghost-button" id="exportButton" type="button">CSV 내보내기</button>
+        <label class="file-button" for="importInput">CSV 불러오기</label>
+        <input id="importInput" type="file" accept=".csv,text/csv">
+      </div>
+    </section>
 
-      <section class="form-grid" aria-label="주간업무보고 입력">
-        <label class="field">
-          <span>이름 / 팀명</span>
-          <input id="ownerInput" type="text" placeholder="예: 보안기술팀 홍길동">
-        </label>
+    <section class="metric-grid" aria-label="도메인 상태 요약">
+      <article class="metric-card">
+        <span>전체 도메인</span>
+        <strong id="totalCount">0</strong>
+      </article>
+      <article class="metric-card danger">
+        <span>만료 임박</span>
+        <strong id="dangerCount">0</strong>
+      </article>
+      <article class="metric-card warning">
+        <span>주의 필요</span>
+        <strong id="warningCount">0</strong>
+      </article>
+      <article class="metric-card safe">
+        <span>정상</span>
+        <strong id="safeCount">0</strong>
+      </article>
+    </section>
 
-        <label class="field">
-          <span>보고 주차</span>
-          <input id="weekInput" type="text" placeholder="예: 2026년 6월 2주차">
-        </label>
-
-        <label class="field field-wide">
-          <span>금주 업무 키워드</span>
-          <textarea id="currentInput" rows="5" placeholder="예: F5 WAF 테스트, NAC 정책 점검, EDR 이벤트 분석"></textarea>
-        </label>
-
-        <label class="field field-wide">
-          <span>차주 계획 키워드</span>
-          <textarea id="nextInput" rows="4" placeholder="예: WAF 자동화 보완, NAC 예외 정책 정리, EDR 탐지 룰 검토"></textarea>
-        </label>
-
-        <fieldset class="choice-panel">
-          <legend>업무 유형</legend>
-          <div class="chip-grid" id="categoryGroup"></div>
-        </fieldset>
-
-        <fieldset class="choice-panel">
-          <legend>톤</legend>
-          <div class="segmented" id="toneGroup">
-            <button type="button" data-tone="simple">간단</button>
-            <button type="button" data-tone="report" class="active">보고용</button>
-            <button type="button" data-tone="technical">기술중심</button>
+    <section class="content-grid">
+      <form class="editor" id="domainForm">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Asset Entry</p>
+            <h2>도메인 등록</h2>
           </div>
-        </fieldset>
+          <button class="text-button" id="clearFormButton" type="button">비우기</button>
+        </div>
 
-        <div class="actions field-wide">
-          <button class="primary-button" id="generateButton" type="button">생성하기</button>
-          <button class="secondary-button" id="copyButton" type="button">복사하기</button>
-          <span id="statusText" role="status" aria-live="polite"></span>
+        <input id="recordId" type="hidden">
+
+        <label class="field field-wide">
+          <span>도메인</span>
+          <input id="domainInput" type="text" placeholder="example.com" autocomplete="off" required>
+        </label>
+
+        <div class="split-fields">
+          <label class="field">
+            <span>도메인 만료일</span>
+            <input id="domainExpiryInput" type="date" required>
+          </label>
+
+          <label class="field">
+            <span>SSL 만료일</span>
+            <input id="sslExpiryInput" type="date">
+          </label>
+        </div>
+
+        <div class="split-fields">
+          <label class="field">
+            <span>등록기관</span>
+            <input id="registrarInput" type="text" placeholder="Gabia, Cloudflare, Route 53">
+          </label>
+
+          <label class="field">
+            <span>소유팀 / 담당자</span>
+            <input id="ownerInput" type="text" placeholder="보안기술팀 / 홍길동">
+          </label>
+        </div>
+
+        <label class="field field-wide">
+          <span>네임서버</span>
+          <input id="nameserverInput" type="text" placeholder="ns1.example.com, ns2.example.com">
+        </label>
+
+        <label class="field field-wide">
+          <span>메모</span>
+          <textarea id="noteInput" rows="4" placeholder="갱신 방식, 결제 계정, 운영 영향도, 관련 장비 등을 기록하세요."></textarea>
+        </label>
+
+        <button class="primary-button" type="submit">저장하기</button>
+      </form>
+
+      <section class="board">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="도메인, 등록기관, 담당자 검색">
+          </div>
+          <select id="filterSelect" aria-label="상태 필터">
+            <option value="all">전체 상태</option>
+            <option value="danger">만료 임박</option>
+            <option value="warning">주의 필요</option>
+            <option value="safe">정상</option>
+            <option value="expired">만료됨</option>
+          </select>
+        </div>
+
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>상태</th>
+                <th>도메인</th>
+                <th>D-Day</th>
+                <th>SSL</th>
+                <th>등록기관</th>
+                <th>담당</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="domainTable"></tbody>
+          </table>
+          <div class="empty-state" id="emptyState">
+            <strong>아직 등록된 도메인이 없습니다.</strong>
+            <span>샘플을 불러오거나 첫 번째 도메인을 등록해보세요.</span>
+          </div>
         </div>
       </section>
     </section>
-
-    <section class="result-panel" aria-label="생성 결과">
-      <div class="result-header">
-        <h2>결과 출력</h2>
-        <span id="lineCount">0 lines</span>
-      </div>
-      <pre id="resultOutput">금주 업무와 차주 계획 키워드를 입력한 뒤 생성하기를 눌러주세요.</pre>
-    </section>
   </main>
 
+  <template id="rowTemplate">
+    <tr>
+      <td data-label="상태"><span class="status-pill"></span></td>
+      <td data-label="도메인">
+        <strong class="domain-name"></strong>
+        <small class="domain-note"></small>
+      </td>
+      <td data-label="D-Day" class="day-cell"></td>
+      <td data-label="SSL" class="ssl-cell"></td>
+      <td data-label="등록기관" class="registrar-cell"></td>
+      <td data-label="담당" class="owner-cell"></td>
+      <td class="row-actions">
+        <button type="button" class="icon-button edit-button" title="수정">수정</button>
+        <button type="button" class="icon-button delete-button" title="삭제">삭제</button>
+      </td>
+    </tr>
+  </template>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="script.js"></script>
 </body>
 </html>
