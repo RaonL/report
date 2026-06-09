@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Domain Locker</title>
+  <title>Infra Ops Runbook</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,145 +11,148 @@
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow">Render Free Static Site</p>
-        <h1>Domain Locker</h1>
-        <p class="hero-text">도메인, SSL 인증서, 등록기관, 담당자 정보를 한 화면에서 관리하는 가벼운 보안 운영 대시보드입니다.</p>
+        <h1>Infra Ops Runbook</h1>
+        <p>회사 자산 정보를 입력하지 않고도 장애 유형별 초동 대응, 점검 순서, 에스컬레이션 기준, 공유 문구를 생성하는 인프라 운영 Runbook 콘솔입니다.</p>
       </div>
-      <div class="hero-actions">
-        <button class="ghost-button" id="loadSampleButton" type="button">샘플 불러오기</button>
-        <button class="ghost-button" id="exportButton" type="button">CSV 내보내기</button>
-        <label class="file-button" for="importInput">CSV 불러오기</label>
-        <input id="importInput" type="file" accept=".csv,text/csv">
+      <div class="hero-panel" aria-label="보안 원칙">
+        <strong>Zero Asset Exposure</strong>
+        <span>IP, 도메인, 계정, 장비명, 고객명 저장 없음</span>
       </div>
     </section>
 
-    <section class="metric-grid" aria-label="도메인 상태 요약">
-      <article class="metric-card">
-        <span>전체 도메인</span>
-        <strong id="totalCount">0</strong>
-      </article>
-      <article class="metric-card danger">
-        <span>만료 임박</span>
-        <strong id="dangerCount">0</strong>
-      </article>
-      <article class="metric-card warning">
-        <span>주의 필요</span>
-        <strong id="warningCount">0</strong>
-      </article>
-      <article class="metric-card safe">
-        <span>정상</span>
-        <strong id="safeCount">0</strong>
-      </article>
-    </section>
-
-    <section class="content-grid">
-      <form class="editor" id="domainForm">
-        <div class="section-title">
-          <div>
-            <p class="eyebrow">Asset Entry</p>
-            <h2>도메인 등록</h2>
-          </div>
-          <button class="text-button" id="clearFormButton" type="button">비우기</button>
+    <section class="layout">
+      <aside class="control-panel">
+        <div class="panel-title">
+          <p class="eyebrow">Scenario Builder</p>
+          <h2>상황 선택</h2>
         </div>
 
-        <input id="recordId" type="hidden">
-
-        <label class="field field-wide">
-          <span>도메인</span>
-          <input id="domainInput" type="text" placeholder="example.com" autocomplete="off" required>
+        <label class="field">
+          <span>장애 유형</span>
+          <select id="scenarioSelect"></select>
         </label>
 
-        <div class="split-fields">
-          <label class="field">
-            <span>도메인 만료일</span>
-            <input id="domainExpiryInput" type="date" required>
-          </label>
-
-          <label class="field">
-            <span>SSL 만료일</span>
-            <input id="sslExpiryInput" type="date">
-          </label>
-        </div>
-
-        <div class="split-fields">
-          <label class="field">
-            <span>등록기관</span>
-            <input id="registrarInput" type="text" placeholder="Gabia, Cloudflare, Route 53">
-          </label>
-
-          <label class="field">
-            <span>소유팀 / 담당자</span>
-            <input id="ownerInput" type="text" placeholder="보안기술팀 / 홍길동">
-          </label>
-        </div>
-
-        <label class="field field-wide">
-          <span>네임서버</span>
-          <input id="nameserverInput" type="text" placeholder="ns1.example.com, ns2.example.com">
-        </label>
-
-        <label class="field field-wide">
-          <span>메모</span>
-          <textarea id="noteInput" rows="4" placeholder="갱신 방식, 결제 계정, 운영 영향도, 관련 장비 등을 기록하세요."></textarea>
-        </label>
-
-        <button class="primary-button" type="submit">저장하기</button>
-      </form>
-
-      <section class="board">
-        <div class="toolbar">
-          <div class="search-wrap">
-            <span aria-hidden="true">⌕</span>
-            <input id="searchInput" type="search" placeholder="도메인, 등록기관, 담당자 검색">
-          </div>
-          <select id="filterSelect" aria-label="상태 필터">
-            <option value="all">전체 상태</option>
-            <option value="danger">만료 임박</option>
-            <option value="warning">주의 필요</option>
-            <option value="safe">정상</option>
-            <option value="expired">만료됨</option>
+        <label class="field">
+          <span>심각도</span>
+          <select id="severitySelect">
+            <option value="sev1">SEV-1 전체 영향</option>
+            <option value="sev2" selected>SEV-2 주요 서비스 영향</option>
+            <option value="sev3">SEV-3 일부 사용자 영향</option>
+            <option value="sev4">SEV-4 문의/점검 수준</option>
           </select>
+        </label>
+
+        <label class="field">
+          <span>운영 단계</span>
+          <select id="stageSelect">
+            <option value="detect">장애 인지</option>
+            <option value="triage" selected>원인 분석 중</option>
+            <option value="mitigate">우회/복구 조치</option>
+            <option value="recover">복구 확인</option>
+            <option value="postmortem">사후 정리</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>영향 범위</span>
+          <select id="impactSelect">
+            <option value="internal">내부 사용자</option>
+            <option value="external">외부 사용자</option>
+            <option value="branch">특정 지점/망</option>
+            <option value="customer">고객/대외 서비스</option>
+            <option value="unknown" selected>확인 중</option>
+          </select>
+        </label>
+
+        <fieldset class="toggle-group">
+          <legend>포함 항목</legend>
+          <label><input type="checkbox" id="includeCommands" checked> 점검 명령</label>
+          <label><input type="checkbox" id="includeComms" checked> 공유 문구</label>
+          <label><input type="checkbox" id="includeRollback" checked> 우회/롤백</label>
+          <label><input type="checkbox" id="includePost" checked> 사후 점검</label>
+        </fieldset>
+
+        <div class="button-stack">
+          <button class="primary-button" id="generateButton" type="button">Runbook 생성</button>
+          <button class="secondary-button" id="copyButton" type="button">전체 복사</button>
+          <button class="secondary-button" id="printButton" type="button">인쇄/PDF</button>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <div class="summary-grid">
+          <article>
+            <span>목표</span>
+            <strong id="objectiveText">-</strong>
+          </article>
+          <article>
+            <span>초동 기준</span>
+            <strong id="slaText">-</strong>
+          </article>
+          <article>
+            <span>에스컬레이션</span>
+            <strong id="escalationText">-</strong>
+          </article>
         </div>
 
-        <div class="table-shell">
-          <table>
-            <thead>
-              <tr>
-                <th>상태</th>
-                <th>도메인</th>
-                <th>D-Day</th>
-                <th>SSL</th>
-                <th>등록기관</th>
-                <th>담당</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="domainTable"></tbody>
-          </table>
-          <div class="empty-state" id="emptyState">
-            <strong>아직 등록된 도메인이 없습니다.</strong>
-            <span>샘플을 불러오거나 첫 번째 도메인을 등록해보세요.</span>
-          </div>
+        <div class="tabbar" role="tablist" aria-label="Runbook 보기">
+          <button class="active" type="button" data-view="runbook">Runbook</button>
+          <button type="button" data-view="message">공유 문구</button>
+          <button type="button" data-view="reference">운영 기준</button>
         </div>
+
+        <section class="output-view active" id="runbookView">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Generated Procedure</p>
+              <h2 id="runbookTitle">Runbook</h2>
+            </div>
+            <span id="updatedText">생성 대기</span>
+          </div>
+          <div class="runbook-grid" id="runbookGrid"></div>
+        </section>
+
+        <section class="output-view" id="messageView">
+          <div class="message-grid">
+            <article class="message-card">
+              <div class="card-title">
+                <h3>내부 공유</h3>
+                <button type="button" data-copy-target="internalMessage">복사</button>
+              </div>
+              <pre id="internalMessage"></pre>
+            </article>
+            <article class="message-card">
+              <div class="card-title">
+                <h3>사용자/고객 공지</h3>
+                <button type="button" data-copy-target="externalMessage">복사</button>
+              </div>
+              <pre id="externalMessage"></pre>
+            </article>
+            <article class="message-card">
+              <div class="card-title">
+                <h3>복구 완료</h3>
+                <button type="button" data-copy-target="recoveryMessage">복사</button>
+              </div>
+              <pre id="recoveryMessage"></pre>
+            </article>
+          </div>
+        </section>
+
+        <section class="output-view" id="referenceView">
+          <div class="reference-grid" id="referenceGrid"></div>
+        </section>
       </section>
     </section>
   </main>
 
-  <template id="rowTemplate">
-    <tr>
-      <td data-label="상태"><span class="status-pill"></span></td>
-      <td data-label="도메인">
-        <strong class="domain-name"></strong>
-        <small class="domain-note"></small>
-      </td>
-      <td data-label="D-Day" class="day-cell"></td>
-      <td data-label="SSL" class="ssl-cell"></td>
-      <td data-label="등록기관" class="registrar-cell"></td>
-      <td data-label="담당" class="owner-cell"></td>
-      <td class="row-actions">
-        <button type="button" class="icon-button edit-button" title="수정">수정</button>
-        <button type="button" class="icon-button delete-button" title="삭제">삭제</button>
-      </td>
-    </tr>
+  <template id="runbookCardTemplate">
+    <article class="runbook-card">
+      <div class="card-title">
+        <h3></h3>
+        <button type="button">복사</button>
+      </div>
+      <ol></ol>
+    </article>
   </template>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
