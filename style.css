@@ -197,6 +197,22 @@ select {
   outline: none;
 }
 
+input[type="text"] {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  color: var(--ink);
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  outline: none;
+}
+
+input[type="text"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(20, 92, 114, 0.15);
+}
+
 select option {
   min-height: 32px;
   padding: 8px 10px;
@@ -231,7 +247,8 @@ select:focus {
 
 .primary-button,
 .secondary-button,
-.card-title button {
+.card-title button,
+.inline-button {
   min-height: 42px;
   border: 1px solid transparent;
   border-radius: 6px;
@@ -248,6 +265,12 @@ select:focus {
 }
 
 .secondary-button {
+  color: var(--primary);
+  background: #e7f2f5;
+}
+
+.inline-button {
+  padding: 0 14px;
   color: var(--primary);
   background: #e7f2f5;
 }
@@ -374,13 +397,14 @@ li {
 }
 
 .message-grid,
-.reference-grid {
+.reference-grid,
+.command-grid {
   display: grid;
   gap: 14px;
 }
 
 .message-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 pre {
@@ -395,6 +419,128 @@ pre {
 
 .reference-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.timeline {
+  display: grid;
+  gap: 14px;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.timeline-time {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  padding: 16px;
+  color: #ffffff;
+  background: var(--primary);
+  border-radius: 8px;
+  font-weight: 900;
+}
+
+.timeline-card,
+.command-card,
+.diagram-card,
+.postmortem-form {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 26px rgba(17, 24, 39, 0.07);
+}
+
+.timeline-card,
+.command-card,
+.diagram-card,
+.postmortem-form {
+  padding: 18px;
+}
+
+.command-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.command-card code {
+  display: block;
+  padding: 12px;
+  color: #0f2630;
+  background: #eef6f8;
+  border: 1px solid #d5e8ee;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.command-card p {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.diagram-card {
+  overflow: auto;
+}
+
+.diagram-flow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 720px;
+  padding: 12px 0;
+}
+
+.diagram-node {
+  min-width: 132px;
+  padding: 16px 14px;
+  text-align: center;
+  background: #f7fbfc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.06);
+}
+
+.diagram-node strong {
+  display: block;
+  font-size: 15px;
+}
+
+.diagram-node span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.diagram-arrow {
+  color: var(--primary);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.postmortem-layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.postmortem-form {
+  display: grid;
+  gap: 14px;
+}
+
+.section-header.compact {
+  margin-bottom: 0;
 }
 
 .reference-card strong {
@@ -480,7 +626,9 @@ pre {
   .summary-grid,
   .runbook-grid,
   .message-grid,
-  .reference-grid {
+  .reference-grid,
+  .command-grid,
+  .postmortem-layout {
     grid-template-columns: 1fr;
   }
 
@@ -505,5 +653,13 @@ pre {
 
   .tabbar button {
     border-radius: 6px;
+  }
+
+  .timeline-item {
+    grid-template-columns: 1fr;
+  }
+
+  .diagram-flow {
+    min-width: 560px;
   }
 }

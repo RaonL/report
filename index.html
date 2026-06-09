@@ -12,7 +12,7 @@
       <div class="hero-copy">
         <p class="eyebrow">Render Free Static Site</p>
         <h1>Infra Ops Runbook</h1>
-        <p>회사 자산 정보를 입력하지 않고도 장애 유형별 초동 대응, 점검 순서, 에스컬레이션 기준, 공유 문구를 생성하는 인프라 운영 Runbook 콘솔입니다.</p>
+        <p>장애 유형과 영향 범위를 선택하면 초동 대응 순서, 점검 명령어, 공유 문구, 에스컬레이션 기준, 구성도, 사후보고 초안을 생성하는 초경량 인프라 운영 Runbook 콘솔입니다.</p>
       </div>
       <div class="hero-panel" aria-label="보안 원칙">
         <strong>Zero Asset Exposure</strong>
@@ -97,8 +97,11 @@
 
         <div class="tabbar" role="tablist" aria-label="Runbook 보기">
           <button class="active" type="button" data-view="runbook">Runbook</button>
-          <button type="button" data-view="message">공유 문구</button>
-          <button type="button" data-view="reference">운영 기준</button>
+          <button type="button" data-view="timeline">Timeline</button>
+          <button type="button" data-view="commands">Commands</button>
+          <button type="button" data-view="diagram">Diagram</button>
+          <button type="button" data-view="message">Message</button>
+          <button type="button" data-view="postmortem">Postmortem</button>
         </div>
 
         <section class="output-view active" id="runbookView">
@@ -112,6 +115,39 @@
           <div class="runbook-grid" id="runbookGrid"></div>
         </section>
 
+        <section class="output-view" id="timelineView">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Incident SOP</p>
+              <h2>장애 대응 타임라인</h2>
+            </div>
+          </div>
+          <div class="timeline" id="timelineGrid"></div>
+        </section>
+
+        <section class="output-view" id="commandsView">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Command Helper</p>
+              <h2>점검 명령어 세트</h2>
+            </div>
+            <button class="inline-button" id="copyCommandsButton" type="button">명령어 복사</button>
+          </div>
+          <div class="command-grid" id="commandGrid"></div>
+        </section>
+
+        <section class="output-view" id="diagramView">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Traffic Path</p>
+              <h2>상황별 구성도</h2>
+            </div>
+          </div>
+          <div class="diagram-card">
+            <div class="diagram-flow" id="diagramFlow"></div>
+          </div>
+        </section>
+
         <section class="output-view" id="messageView">
           <div class="message-grid">
             <article class="message-card">
@@ -123,14 +159,21 @@
             </article>
             <article class="message-card">
               <div class="card-title">
-                <h3>사용자/고객 공지</h3>
+                <h3>고객 공유</h3>
                 <button type="button" data-copy-target="externalMessage">복사</button>
               </div>
               <pre id="externalMessage"></pre>
             </article>
             <article class="message-card">
               <div class="card-title">
-                <h3>복구 완료</h3>
+                <h3>임원 보고</h3>
+                <button type="button" data-copy-target="executiveMessage">복사</button>
+              </div>
+              <pre id="executiveMessage"></pre>
+            </article>
+            <article class="message-card">
+              <div class="card-title">
+                <h3>장애 종료</h3>
                 <button type="button" data-copy-target="recoveryMessage">복사</button>
               </div>
               <pre id="recoveryMessage"></pre>
@@ -138,8 +181,41 @@
           </div>
         </section>
 
-        <section class="output-view" id="referenceView">
-          <div class="reference-grid" id="referenceGrid"></div>
+        <section class="output-view" id="postmortemView">
+          <div class="postmortem-layout">
+            <form class="postmortem-form" id="postmortemForm">
+              <div class="section-header compact">
+                <div>
+                  <p class="eyebrow">Closure Report</p>
+                  <h2>장애 종료 보고서</h2>
+                </div>
+              </div>
+              <label class="field">
+                <span>장애 시작 시간</span>
+                <input id="incidentStartInput" type="text" placeholder="예: 2026-06-09 09:20">
+              </label>
+              <label class="field">
+                <span>복구 시간</span>
+                <input id="incidentEndInput" type="text" placeholder="예: 2026-06-09 10:05">
+              </label>
+              <label class="field">
+                <span>원인 요약</span>
+                <input id="causeInput" type="text" placeholder="민감정보 제외, 일반 원인만 입력">
+              </label>
+              <label class="field">
+                <span>조치 내용</span>
+                <input id="actionInput" type="text" placeholder="예: 우회 조치 및 상태 정상화 확인">
+              </label>
+              <button class="primary-button" id="refreshPostmortemButton" type="button">보고서 갱신</button>
+            </form>
+            <article class="message-card">
+              <div class="card-title">
+                <h3>보고서 초안</h3>
+                <button type="button" data-copy-target="postmortemOutput">복사</button>
+              </div>
+              <pre id="postmortemOutput"></pre>
+            </article>
+          </div>
         </section>
       </section>
     </section>

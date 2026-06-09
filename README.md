@@ -7,7 +7,11 @@
 - DNS, SSL/TLS, 네트워크, 서버, VPN, 방화벽, 케이블/GBIC, L2, L3, L4, L7, WAF, NAC, EDR 장애 Runbook
 - 심각도, 운영 단계, 영향 범위별 절차 구성
 - 초동 대응, 원인 분리, 상세 점검, 점검 명령, 우회/복구, 에스컬레이션, 사후 점검 생성
-- 내부 공유, 사용자/고객 공지, 복구 완료 문구 생성
+- 장애 대응 Timeline 생성
+- 점검 명령어 Command Helper 제공
+- 장애 유형별 Traffic Path Diagram 제공
+- 내부 공유, 고객 공유, 임원 보고, 장애 종료 문구 생성
+- 장애 종료 보고서 Postmortem 초안 생성
 - 전체 복사, 섹션별 복사, 인쇄/PDF
 - LocalStorage, DB, API, 로그인 없음
 
