@@ -325,6 +325,252 @@ const runbooks = {
       "실제 위협이면 IOC를 공유하고 동일 패턴 헌팅 쿼리를 수행합니다.",
       "사용자 교육 또는 보안 정책 개선이 필요한지 후속 조치를 지정합니다."
     ]
+  },
+  firewall: {
+    name: "방화벽 정책/세션 장애",
+    objective: "정책 차단, NAT, 라우팅, 세션 고갈, 비대칭 경로, 객체 변경 이슈를 분리하여 통신 장애 원인을 확인합니다.",
+    sla: "15분 내 차단/라우팅/세션 이슈 분류, 45분 내 임시 허용 또는 롤백 판단",
+    escalation: "대외 서비스 또는 핵심 업무망 통신 장애가 확인되면 네트워크/보안 정책 승인자 동시 호출",
+    tags: ["Firewall", "Policy", "NAT", "Session", "Routing"],
+    triage: [
+      "출발지, 목적지, 포트, 프로토콜, 발생 시각을 기준으로 정책 조회 조건을 정리합니다.",
+      "신규 정책 요청인지 기존 통신 장애인지 구분하고 최근 정책 변경/객체 변경/NAT 변경 이력을 확인합니다.",
+      "방화벽 로그에서 allow, deny, drop, reset, timeout 중 어떤 동작인지 확인합니다.",
+      "정책상 허용되어도 NAT, 라우팅, zone, security profile, IPS/WAF 연동에서 차단되는지 분리합니다.",
+      "양방향 통신이 필요한 서비스는 return path와 비대칭 경로 가능성을 함께 확인합니다."
+    ],
+    verify: [
+      "정책 매칭 순서, 상위 deny 정책, 객체 그룹 포함 여부, address/service object 오타를 확인합니다.",
+      "NAT 전/후 주소 기준으로 로그와 세션 테이블을 각각 확인합니다.",
+      "세션 테이블 사용률, CPS, CPU, 메모리, HA 상태, failover 이벤트를 점검합니다.",
+      "IPS, AV, URL filtering, SSL inspection 같은 보안 프로파일 차단 여부를 확인합니다.",
+      "임시 허용이 필요한 경우 대상, 포트, 기간, 사유, 승인자를 먼저 확정합니다."
+    ],
+    commands: [
+      "Test-NetConnection target -Port 443",
+      "telnet target 443",
+      "tracert target",
+      "tcpdump -nn host source-ip and host destination-ip",
+      "show session all filter source source-ip destination destination-ip",
+      "show log traffic query equal source source-ip"
+    ],
+    mitigate: [
+      "정책 오적용이면 직전 정상 정책 또는 객체 버전으로 롤백합니다.",
+      "긴급 허용 정책은 최상단 광범위 허용 대신 특정 출발지/목적지/포트/시간으로 제한합니다.",
+      "NAT 문제라면 기존 NAT 순서와 중복 객체 충돌을 검토한 뒤 최소 변경으로 반영합니다.",
+      "세션 고갈이면 비정상 트래픽 차단, 세션 timeout 조정, 우회 경로 적용을 검토합니다."
+    ],
+    post: [
+      "정책 변경 요청서와 실제 반영값의 출발지/목적지/서비스 객체를 비교합니다.",
+      "임시 허용 정책은 만료일 기준으로 제거 예약하고 장기 정책으로 승격할지 검토합니다.",
+      "정책 검증 체크리스트에 NAT, 라우팅, 보안 프로파일, 로그 확인 항목을 추가합니다.",
+      "반복 장애가 발생한 객체 그룹은 명명 규칙과 소유자를 정리합니다."
+    ]
+  },
+  cableGbic: {
+    name: "케이블/GBIC 물리 링크 이슈",
+    objective: "케이블, GBIC/SFP, 포트, 광세기, CRC, duplex, 패치 경로 문제를 확인하여 물리 계층 장애를 분리합니다.",
+    sla: "10분 내 링크 상태 확인, 30분 내 케이블/GBIC/포트 교체 판단",
+    escalation: "이중화 구간 동시 저하, 광세기 임계치 초과, 상면 작업 필요 시 네트워크/IDC 담당 호출",
+    tags: ["Cable", "GBIC", "SFP", "CRC", "Link"],
+    triage: [
+      "장애가 link down, flap, 속도 저하, 패킷 손실, CRC 증가 중 어디에 해당하는지 확인합니다.",
+      "최근 상면 작업, 케이블 정리, GBIC 교체, 장비 재기동, 포트 변경 이력을 확인합니다.",
+      "양단 장비 포트 상태와 인터페이스 카운터를 같은 시각 기준으로 비교합니다.",
+      "광 구간이면 TX/RX power, wavelength, single/multi mode, 거리 규격을 확인합니다.",
+      "이중화 구성에서는 active/standby 또는 LAG 멤버 중 특정 링크만 문제인지 분리합니다."
+    ],
+    verify: [
+      "CRC, input error, output error, discard, pause frame, link flap 카운터 증가 여부를 확인합니다.",
+      "포트 speed/duplex/auto-negotiation 설정이 양단에서 일치하는지 확인합니다.",
+      "GBIC 벤더 호환성, DOM 지원 여부, 온도, 전압, 광세기 임계치를 확인합니다.",
+      "패치 패널과 실제 케이블 라벨이 문서와 일치하는지 확인합니다.",
+      "케이블/GBIC/포트 순서로 교차 교체하여 장애가 따라가는지 확인합니다."
+    ],
+    commands: [
+      "show interface status",
+      "show interface counters errors",
+      "show interface transceiver details",
+      "show logging | include LINK",
+      "ethtool interface-name",
+      "ip -s link show interface-name"
+    ],
+    mitigate: [
+      "단일 링크 장애이고 이중화가 정상이면 영향 확인 후 케이블 또는 GBIC를 교체합니다.",
+      "LAG 멤버 오류라면 해당 멤버를 임시 제외하고 트래픽 분산 상태를 확인합니다.",
+      "광세기 불량이면 케이블 청소, 패치 경로 변경, GBIC 교체 순서로 조치합니다.",
+      "포트 불량이 의심되면 예비 포트로 이동하되 VLAN/LAG/트렁크 설정을 사전 확인합니다."
+    ],
+    post: [
+      "교체한 케이블/GBIC 시리얼, 위치, 포트, 작업 시각을 기록합니다.",
+      "링크 flap과 error counter 기준의 모니터링 임계치를 조정합니다.",
+      "상면 패치 문서와 실제 연결 상태를 갱신합니다.",
+      "예비 GBIC/케이블 재고와 규격을 점검합니다."
+    ]
+  },
+  l2: {
+    name: "L2 스위치 장애",
+    objective: "VLAN, STP, trunk, LAG, MAC learning, loop, broadcast storm 문제를 분리합니다.",
+    sla: "15분 내 VLAN/포트/루프 여부 판단, 45분 내 우회 포트 또는 롤백 결정",
+    escalation: "루프 또는 다수 포트 영향이 의심되면 네트워크 담당과 현장 담당 즉시 호출",
+    tags: ["L2", "Switch", "VLAN", "STP", "Trunk"],
+    triage: [
+      "영향 범위를 단일 포트, 단일 VLAN, 단일 스위치, 전체 스위치 구간으로 분리합니다.",
+      "최근 VLAN 추가, trunk 허용 VLAN 변경, LAG 변경, STP 설정 변경 이력을 확인합니다.",
+      "포트 link 상태, VLAN 할당, trunk/native VLAN, port-security 차단 여부를 확인합니다.",
+      "MAC address table에서 MAC flapping 또는 예상 포트와 다른 학습 위치를 확인합니다.",
+      "broadcast storm, loop, STP topology change 증가 여부를 확인합니다."
+    ],
+    verify: [
+      "access 포트와 trunk 포트의 VLAN 설정이 설계와 일치하는지 확인합니다.",
+      "STP root bridge, blocked port, topology change count를 확인합니다.",
+      "LACP 상태와 bundle 멤버 불일치 여부를 확인합니다.",
+      "포트 보안, BPDU guard, storm control, err-disable 상태를 확인합니다.",
+      "동일 VLAN 내 게이트웨이 ARP와 단말 MAC 학습 상태를 비교합니다."
+    ],
+    commands: [
+      "show vlan brief",
+      "show interfaces trunk",
+      "show spanning-tree",
+      "show mac address-table dynamic",
+      "show etherchannel summary",
+      "show interfaces status err-disabled"
+    ],
+    mitigate: [
+      "루프 의심 포트는 영향 확인 후 즉시 shutdown하고 STP 안정화 여부를 확인합니다.",
+      "trunk VLAN 누락이면 변경 전 승인 범위 내에서 허용 VLAN을 복구합니다.",
+      "LAG 불일치면 멤버 포트를 임시 제외하고 단일 링크 안정성을 확인합니다.",
+      "err-disable 포트는 원인 제거 후 복구하며 자동 복구 설정 여부를 확인합니다."
+    ],
+    post: [
+      "VLAN/trunk 변경 절차에 사전/사후 MAC, STP, LACP 확인을 추가합니다.",
+      "루프 방지를 위해 BPDU guard, storm control, root guard 적용 범위를 점검합니다.",
+      "스위치 포트 사용 현황과 패치 문서를 갱신합니다.",
+      "반복 flap 포트는 케이블/GBIC/단말 NIC 점검 대상으로 등록합니다."
+    ]
+  },
+  l3: {
+    name: "L3 라우팅 장애",
+    objective: "게이트웨이, 라우팅 테이블, 동적 라우팅, ACL, VRF, 비대칭 경로 문제를 분리합니다.",
+    sla: "15분 내 경로 단절 위치 확인, 45분 내 라우팅 복구 또는 우회 경로 판단",
+    escalation: "핵심 라우터, WAN, 동적 라우팅 장애가 확인되면 네트워크/회선 담당 호출",
+    tags: ["L3", "Routing", "Gateway", "OSPF", "BGP"],
+    triage: [
+      "출발지와 목적지 사이 어느 구간까지 도달 가능한지 hop 단위로 확인합니다.",
+      "단일 prefix 문제인지 다수 prefix 문제인지 라우팅 테이블 기준으로 분리합니다.",
+      "최근 static route, dynamic routing, VRF, ACL, redistribution 변경 이력을 확인합니다.",
+      "게이트웨이, HSRP/VRRP, 라우팅 프로토콜 neighbor 상태를 확인합니다.",
+      "왕복 경로가 다른 비대칭 라우팅으로 방화벽 세션이 끊기는지 확인합니다."
+    ],
+    verify: [
+      "라우팅 테이블의 next-hop, metric, administrative distance를 확인합니다.",
+      "OSPF/BGP/EIGRP neighbor 상태와 route advertisement 여부를 확인합니다.",
+      "VRF 또는 routing instance가 올바르게 매핑되었는지 확인합니다.",
+      "ACL/PBR/route-map이 특정 트래픽만 우회 또는 차단하는지 확인합니다.",
+      "회선 장애라면 carrier 상태와 양단 인터페이스 상태를 함께 확인합니다."
+    ],
+    commands: [
+      "show ip route",
+      "show ip interface brief",
+      "show ip ospf neighbor",
+      "show bgp summary",
+      "traceroute target",
+      "ping target source source-interface"
+    ],
+    mitigate: [
+      "잘못된 static route 또는 route-map 변경은 직전 설정으로 롤백합니다.",
+      "동적 라우팅 장애는 neighbor 재수립보다 원인 로그와 인터페이스 상태를 먼저 확인합니다.",
+      "회선 장애 시 백업 경로 또는 임시 static route 적용 가능성을 검토합니다.",
+      "비대칭 경로는 방화벽 경유 경로 일관성을 기준으로 우회안을 검토합니다."
+    ],
+    post: [
+      "라우팅 변경 전후 경로 캡처와 영향 prefix 목록을 기록합니다.",
+      "동적 라우팅 neighbor down 알림과 route count 변동 알림을 보완합니다.",
+      "PBR/route-map 변경은 변경 관리 체크리스트에 별도 승인 항목으로 추가합니다.",
+      "WAN 회선 장애라면 회선사 티켓과 SLA 시간을 기록합니다."
+    ]
+  },
+  l4: {
+    name: "L4 로드밸런서 장애",
+    objective: "VIP, pool member, health check, persistence, SNAT, 세션 분산 문제를 확인합니다.",
+    sla: "15분 내 VIP/pool 상태 확인, 45분 내 member 제외 또는 우회 판단",
+    escalation: "대외 서비스 VIP 영향 또는 전체 pool down 시 인프라/서비스 담당 즉시 호출",
+    tags: ["L4", "Load Balancer", "VIP", "Pool", "Health Check"],
+    triage: [
+      "장애가 VIP 접속 불가인지 특정 pool member 장애인지 먼저 분리합니다.",
+      "최근 VIP, pool, monitor, SNAT, persistence, SSL offload 변경 이력을 확인합니다.",
+      "pool member 상태가 down인지 up이지만 응답 지연인지 확인합니다.",
+      "health check 실패 사유가 포트, 경로, 응답 코드, 인증, 방화벽 중 어디인지 확인합니다.",
+      "client-side와 server-side 연결 로그를 분리하여 어느 구간에서 끊기는지 확인합니다."
+    ],
+    verify: [
+      "VIP listener, pool member, monitor, profile, persistence 설정을 확인합니다.",
+      "member별 connection 수, 응답 시간, error, reset 증가 여부를 확인합니다.",
+      "SNAT pool 고갈 또는 source IP 보존 정책으로 return path가 깨지는지 확인합니다.",
+      "health check URL이 애플리케이션 배포 후에도 유효한지 확인합니다.",
+      "L7 정책이 함께 적용된 경우 URI/header 기반 라우팅 오류를 확인합니다."
+    ],
+    commands: [
+      "curl -Iv https://vip",
+      "curl -Iv http://pool-member:port/health",
+      "show ltm virtual",
+      "show ltm pool",
+      "show ltm node",
+      "tcpdump -nn host vip or host pool-member"
+    ],
+    mitigate: [
+      "장애 member는 pool에서 임시 제외하고 남은 member 용량을 확인합니다.",
+      "monitor 오탐이면 서비스 담당 확인 후 monitor 조건을 최소 범위로 보정합니다.",
+      "SNAT 고갈이면 pool 확장 또는 timeout 조정을 검토합니다.",
+      "VIP 설정 오류는 직전 정상 설정으로 롤백하고 접속 테스트를 반복합니다."
+    ],
+    post: [
+      "member down 원인과 제외/복귀 시각을 타임라인으로 정리합니다.",
+      "health check 경로와 애플리케이션 배포 정책의 의존성을 재검토합니다.",
+      "pool 용량과 장애 시 잔여 capacity 기준을 문서화합니다.",
+      "VIP 변경 시 사전 검증 항목에 client/server side 테스트를 추가합니다."
+    ]
+  },
+  l7: {
+    name: "L7 프록시/애플리케이션 게이트웨이 장애",
+    objective: "HTTP 상태 코드, URI 라우팅, 헤더, 인증, SSL offload, WAF/프록시 정책 문제를 분리합니다.",
+    sla: "15분 내 4xx/5xx/timeout 분류, 45분 내 라우팅 또는 정책 복구 판단",
+    escalation: "대외 서비스 5xx 증가, 인증 장애, 프록시 전체 장애 시 서비스/보안 담당 동시 호출",
+    tags: ["L7", "HTTP", "Proxy", "Gateway", "Routing"],
+    triage: [
+      "증상을 4xx, 5xx, timeout, redirect loop, login loop, 특정 URI 장애로 분류합니다.",
+      "최근 라우팅 룰, 인증 연동, SSL offload, header rewrite, WAF 정책 변경 이력을 확인합니다.",
+      "특정 URI, Method, Header, Cookie, Host 기반으로만 발생하는지 확인합니다.",
+      "프록시 앞단과 후단의 응답 코드가 다른지 확인하여 어느 계층에서 오류가 생성되는지 분리합니다.",
+      "사용자 입력값이나 토큰 등 민감 정보는 외부 도구에 복사하지 않습니다."
+    ],
+    verify: [
+      "access log와 error log에서 upstream status, response time, request id를 확인합니다.",
+      "upstream 서버별 5xx 비율과 특정 member 편중 여부를 확인합니다.",
+      "Host header, X-Forwarded-For, X-Forwarded-Proto 전달이 애플리케이션 기대와 일치하는지 확인합니다.",
+      "인증/SSO 연동 장애라면 redirect URI, cookie domain, session timeout을 확인합니다.",
+      "캐시/CDN/프록시 레이어가 오래된 응답을 제공하는지 확인합니다."
+    ],
+    commands: [
+      "curl -Iv https://service/path",
+      "curl -H \"Host: example.com\" http://gateway/path",
+      "curl -k -L https://service/login",
+      "grep request-id access.log",
+      "tail -f error.log",
+      "nginx -t 또는 proxy config validation"
+    ],
+    mitigate: [
+      "잘못된 라우팅 룰은 직전 정상 룰로 롤백하고 특정 URI 테스트를 수행합니다.",
+      "단일 upstream 장애라면 해당 member를 제외하고 오류율 변화를 확인합니다.",
+      "인증 redirect 문제가 있으면 임시 공지 후 SSO 설정과 cookie domain을 복구합니다.",
+      "캐시 오염이면 purge 범위와 사용자 영향도를 확인한 뒤 최소 범위로 제거합니다."
+    ],
+    post: [
+      "URI별 오류율, upstream 상태, 변경 이력을 기반으로 원인을 정리합니다.",
+      "L7 정책 변경 전 staging 검증과 header/redirect 테스트를 체크리스트에 추가합니다.",
+      "request id 기반 추적이 가능하도록 로그 포맷과 대시보드를 보완합니다.",
+      "WAF/프록시/애플리케이션 간 책임 경계를 문서화합니다."
+    ]
   }
 };
 

@@ -152,8 +152,9 @@ h3 {
   position: sticky;
   top: 18px;
   display: grid;
-  gap: 16px;
-  padding: 22px;
+  gap: 14px;
+  padding: 20px;
+  align-content: start;
 }
 
 .panel-title {
@@ -163,7 +164,7 @@ h3 {
 .field,
 .toggle-group {
   display: grid;
-  gap: 8px;
+  gap: 7px;
 }
 
 .field span,
@@ -174,14 +175,32 @@ h3 {
 }
 
 select {
+  appearance: none;
   width: 100%;
-  min-height: 44px;
-  padding: 0 12px;
+  height: 42px;
+  padding: 0 38px 0 12px;
   color: var(--ink);
-  background: var(--surface-soft);
+  font-size: 15px;
+  line-height: 42px;
+  background:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%),
+    var(--surface-soft);
+  background-position:
+    calc(100% - 18px) 18px,
+    calc(100% - 13px) 18px,
+    0 0;
+  background-size: 5px 5px, 5px 5px, 100%;
+  background-repeat: no-repeat;
   border: 1px solid var(--line);
   border-radius: 6px;
   outline: none;
+}
+
+select option {
+  min-height: 32px;
+  padding: 8px 10px;
+  font-size: 15px;
 }
 
 select:focus {
@@ -191,7 +210,7 @@ select:focus {
 
 .toggle-group {
   margin: 0;
-  padding: 14px;
+  padding: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface-soft);
